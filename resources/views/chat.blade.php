@@ -10,6 +10,10 @@
                 overflow-y:scroll;
                 height:200px;
             }
+            .typing{
+                
+                font-size:13px;
+            }
         </style>
     </head>
     <body>
@@ -23,7 +27,8 @@
                         </message>
                        
                     </ul>
-                     <input type = "text" class="form-control" v-model= "message" placeholder = "Type your message here..."
+                    <p v-if = "typing" class = "typing text-muted">@{{userTyping}} is typing@{{dot}}</p>
+                    <input type = "text" class="form-control" v-model= "message" placeholder = "Type your message here..."
                         @keyup.enter = 'send'>
                 </div>
             </div>

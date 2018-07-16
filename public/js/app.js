@@ -24873,19 +24873,30 @@ var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
         message: '',
         chat: {
             message: []
+        },
+        typing: false,
+        user: '',
+        userTyping: '',
+        dot: ""
+    },
+    watch: {
+        message: function message() {
+            var that = this;
+            //console.log(that.message);
+            Echo.private('chat').whisper('typing', {
+                name: that.message,
+                user: that.user
+            });
         }
     },
     methods: {
         send: function send() {
             if (this.message.length != 0) {
-                //console.log(this.message);
 
                 var that = this;
                 axios.post('/send', {
                     message: that.message
                 }).then(function (response) {
-                    // console.log(response);
-
                     that.chat.message.push({ message: that.message,
                         user: {
                             name: "you"
@@ -24903,10 +24914,35 @@ var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
     mounted: function mounted() {
         var _this = this;
 
-        //console.log("Hello world");
+        var that = this;
+        setInterval(function () {
+            if (that.dot.length >= 3) {
+                that.dot = "";
+            } else {
+                that.dot += ".";
+            }
+        }, 500);
+        axios.get('/user').then(function (response) {
+            that.user = response.data;
+            //console.log(that.user);
+        }).catch(function (error) {
+            console.log(error);
+        });
         window.Echo.private('chat').listen('ChatEvent', function (e) {
             e.color = "warning";
             _this.chat.message.push(e);
+        }).listenForWhisper('typing', function (e) {
+            that.userTyping = e.user;
+            if (e.name != '') {
+                var timer = null;
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    that.typing = false;
+                }, 2000);
+                that.typing = true;
+            } else {
+                _this.typing = false;
+            }
         });
     }
 });

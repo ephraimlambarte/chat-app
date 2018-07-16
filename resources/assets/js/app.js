@@ -25,19 +25,31 @@ const app = new Vue({
         message: '',
         chat:{
             message:[]
+        }, 
+        typing: false,
+        user:'',
+        userTyping:'',
+        dot:"",
+    },
+    watch:{
+        message(){
+            var that = this;
+            //console.log(that.message);
+            Echo.private('chat')
+                .whisper('typing', {
+                    name: that.message,
+                    user:that.user
+                });
         }
     },
     methods:{
         send(){
             if(this.message.length != 0){
-                //console.log(this.message);
                 
                 var that = this;
                 axios.post('/send', {
                     message:that.message
                 }).then(function(response){
-                    // console.log(response);
-                    
                     that.chat.message.push({message:that.message,
                                             user:{
                                                 name:"you"
@@ -53,10 +65,37 @@ const app = new Vue({
         }
     },
     mounted(){
-        //console.log("Hello world");
+        var that  =  this;
+        setInterval(function() {
+            if(that.dot.length >= 3){
+                that.dot = "";
+            }else{
+                that.dot += ".";
+            } 
+        }, 500)
+        axios.get('/user')
+            .then(function (response) {
+                that.user = response.data;
+                //console.log(that.user);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         window.Echo.private('chat').listen('ChatEvent', (e)=>{
             e.color = "warning";
             this.chat.message.push(e);
+        }).listenForWhisper('typing', (e)=>{
+            that.userTyping = e.user;
+            if(e.name != ''){
+                var timer = null;
+                clearTimeout(timer);
+                timer = setTimeout(function(){
+                    that.typing = false;
+                }, 2000);
+                that.typing = true;
+            }else{
+                this.typing =  false;
+            }
         });
     }
 });

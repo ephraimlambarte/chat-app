@@ -24877,7 +24877,9 @@ var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
         typing: false,
         user: '',
         userTyping: '',
-        dot: ""
+        dot: "",
+        userLogged: false,
+        userOut: false
     },
     watch: {
         message: function message() {
@@ -24943,6 +24945,19 @@ var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
             } else {
                 _this.typing = false;
             }
+        });
+        Echo.join('chat').here(function (users) {}).joining(function (user) {
+            that.userLogged = true;
+            that.userOut = false;
+            setTimeout(function () {
+                that.userLogged = false;
+            }, 2000);
+        }).leaving(function (user) {
+            that.userOut = true;
+            that.userLogged = false;
+            setTimeout(function () {
+                that.userOut = false;
+            }, 2000);
         });
     }
 });

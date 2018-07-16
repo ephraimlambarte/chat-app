@@ -30,6 +30,8 @@ const app = new Vue({
         user:'',
         userTyping:'',
         dot:"",
+        userLogged:false,
+        userOut:false
     },
     watch:{
         message(){
@@ -96,6 +98,21 @@ const app = new Vue({
             }else{
                 this.typing =  false;
             }
+        });
+        Echo.join('chat').here((users)=>{
+
+        }).joining((user)=>{
+            that.userLogged = true;
+            that.userOut = false;
+            setTimeout(function(){
+                that.userLogged = false;
+            }, 2000);
+        }).leaving((user)=>{
+            that.userOut = true;
+            that.userLogged = false;
+            setTimeout(function(){
+                that.userOut = false;
+            }, 2000);
         });
     }
 });
